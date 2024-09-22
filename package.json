@@ -1,0 +1,25 @@
+{
+  "name": "auth3am",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "db:start": "turso dev --db-file main.db",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "dependencies": {
+    "@hono/swagger-ui": "^0.4.1",
+    "@libsql/client": "^0.14.0",
+    "@lucia-auth/adapter-drizzle": "^1.1.0",
+    "@lucia-auth/adapter-sqlite": "^3.0.2",
+    "better-sqlite3": "^11.3.0",
+    "drizzle-orm": "^0.33.0",
+    "hono": "^4.6.2",
+    "lucia": "^3.2.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/bun": "latest",
+    "drizzle-kit": "^0.24.2"
+  }
+}
