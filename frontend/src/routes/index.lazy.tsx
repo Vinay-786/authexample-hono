@@ -11,7 +11,11 @@ function logout() {
 }
 
 function getUser() {
-    return api.authenticate.getUser.$get();
+    return api.authenticate.me.$get();
+}
+
+function testroute() {
+    return api.testroute.$get();
 }
 
 function Index() {
@@ -23,6 +27,9 @@ function Index() {
             </Button>
             <Button onClick={getUser}>
                 whoami
+            </Button>
+            <Button onClick={testroute}>
+                TestButton
             </Button>
         </div>
     )

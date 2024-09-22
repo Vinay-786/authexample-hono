@@ -4,15 +4,10 @@ import { db } from './db/lucia';
 import { user } from './db';
 import { eq } from 'drizzle-orm';
 import { getCookie } from 'hono/cookie';
-import { useReducer } from 'hono/jsx';
+import { getUser } from './authmiddleware';
 
 
 const authenticate = new Hono()
-
-    .get('/', async (c) => {
-        return c.json({ "message": "hi" });
-    })
-
     .post('/signup', async (c) => {
         const { email, password } = await c.req.json();
 
@@ -80,23 +75,10 @@ const authenticate = new Hono()
         return c.json({ message: 'Logged out successfully' });
     })
 
-    .get('/getUser', async (c) => {
-        const sessionId = getCookie(c, lucia.sessionCookieName) ?? null;
+    .get('/me', getUser, async (c) => {
+        const user = c.var.user;
 
-        if (!sessionId) {
-            c.status(401);
-            return c.json({ error: 'Unauthorized' });
-        }
-
-        const loggeduser = await lucia.validateSession(sessionId);
-        if (!loggeduser.session) {
-            c.status(401);
-            return c.json({ error: 'Unauthorized' });
-        }
-
-
-        const userExist = await db.select({ id: user.id, mail: user.email }).from(user).where(eq(user.id, loggeduser.user.id)).get();
-        return c.json({ userExist });
+        return c.json({ "user": user.email })
     });
 
 export default authenticate;
