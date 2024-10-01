@@ -1,11 +1,9 @@
 import { getCookie } from "hono/cookie";
 import { lucia } from "./db/lucia";
 import { createMiddleware } from "hono/factory";
-import { user } from "./db";
 import { db } from "./db/lucia";
 import { eq } from "drizzle-orm";
-import { SelectUser } from "./db";
-import { InsertUser } from "./db";
+import { user, SelectUser, InsertUser } from "./db/userschema";
 
 type Env = {
     Variables: {

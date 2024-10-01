@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
 import { lucia } from './db/lucia';
 import { db } from './db/lucia';
-import { user } from './db';
 import { eq } from 'drizzle-orm';
 import { getCookie } from 'hono/cookie';
 import { getUser } from './authmiddleware';
+import { user } from './db/userschema';
 
 
 const authenticate = new Hono()

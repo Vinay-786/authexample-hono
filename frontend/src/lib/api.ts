@@ -6,12 +6,16 @@ const client = hc<ApiRoute>("/");
 export const api = client.api;
 
 async function getCurrentUser() {
-  const res = await api.authenticate.me.$get();
-  if (!res.ok) {
-    throw new Error("server error");
+  try {
+    const res = await api.authenticate.me.$get();
+    if (!res.ok) {
+      throw new Error("server error");
+    }
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    return null;
   }
-  const data = await res.json();
-  return data;
 }
 
 export const userQueryOptions = queryOptions({

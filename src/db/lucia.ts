@@ -2,7 +2,7 @@ import { Lucia } from 'lucia';
 import { createClient } from '@libsql/client';
 import { drizzle } from "drizzle-orm/libsql";
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
-import { session, user } from '.';
+import { session, user } from './userschema';
 
 export const sqliteDB = createClient({
     url: "file:main.db"
