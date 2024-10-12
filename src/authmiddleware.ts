@@ -1,19 +1,19 @@
 import { getCookie } from "hono/cookie";
-import { lucia } from "./db/lucia";
 import { createMiddleware } from "hono/factory";
-import { db } from "./db/lucia";
+import { db } from "./db";
 import { eq } from "drizzle-orm";
-import { user, SelectUser, InsertUser } from "./db/userschema";
+import { userTable, type User } from "./db/userSchema";
+import { validateSessionToken } from "./db/sessionApi";
 
 type Env = {
     Variables: {
-        user: InsertUser
+        user: User
     }
 }
 
 
 export const getUser = createMiddleware<Env>(async (c, next) => {
-    const sessionId = getCookie(c, lucia.sessionCookieName) ?? null;
+    const sessionId = getCookie(c, 'mysession') ?? null;
 
     if (!sessionId) {
         c.status(401);
@@ -21,7 +21,7 @@ export const getUser = createMiddleware<Env>(async (c, next) => {
     }
 
     try {
-        const loggeduser = await lucia.validateSession(sessionId);
+        const loggeduser = await validateSessionToken(sessionId);
         if (!loggeduser.session) {
             c.status(401);
             return c.json({ error: 'Unauthorized' });
@@ -43,11 +43,11 @@ export const getUser = createMiddleware<Env>(async (c, next) => {
 export async function findUser(
     database: typeof db,
     loggeduserid: string,
-): Promise<SelectUser | null> {
+): Promise<User | null> {
     const result = await database
         .select()
-        .from(user)
-        .where(eq(user.id, loggeduserid));
+        .from(userTable)
+        .where(eq(userTable.id, loggeduserid));
     if (!result || result.length === 0) {
         return null;
     }
