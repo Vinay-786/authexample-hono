@@ -40,7 +40,7 @@ export const getUser = createMiddleware<Env>(async (c, next) => {
 });
 
 
-export async function findUser(
+async function findUser(
     database: typeof db,
     loggeduserid: string,
 ): Promise<User | null> {

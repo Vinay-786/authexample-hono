@@ -3,6 +3,7 @@ import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from '@oslojs/enco
 import { sha256 } from "@oslojs/crypto/sha2";
 import { db } from './index';
 import { eq } from 'drizzle-orm';
+import { Context } from 'hono';
 
 
 export function generateSessionToken(): string {
@@ -53,6 +54,32 @@ export async function validateSessionToken(token: string): Promise<SessionValida
 
 export async function invalidateSession(sessionId: string): Promise<void> {
     await db.delete(sessionTable).where(eq(sessionTable.id, sessionId))
+}
+
+export function setSessionTokenCookie(c: Context, token: string, expiresAt: Date): void {
+    if (process.env.NODE_ENV === 'production') {
+        c.header(
+            'Set-Cookie',
+            `mysession=${token}; HttpOnly; SameSite=Lax; Expires=${expiresAt.toUTCString()}; Path=/; Secure;`
+        );
+    } else {
+        c.header(
+            'Set-Cookie',
+            `mysession=${token}; HttpOnly; SameSite=Lax; Expires=${expiresAt.toUTCString()}; Path=/`
+        );
+    }
+}
+
+export function deleteSessionTokenCookie(c: Context): void {
+    if (process.env.NODE_ENV === 'production') {
+        c.header(
+            "Set-Cookie",
+            "mysession=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/; Secure;"
+        );
+    } else {
+        c.header("Set-Cookie",
+            "mysession=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/");
+    }
 }
 
 export type SessionValidationResult =

@@ -3,8 +3,8 @@ import { db } from './db';
 import { eq } from 'drizzle-orm';
 import { getCookie } from 'hono/cookie';
 import { getUser } from './authmiddleware';
-import { Session, userTable } from './db/userSchema';
-import { createSession, generateSessionToken, invalidateSession, SessionValidationResult, validateSessionToken } from './db/sessionApi';
+import { userTable } from './db/userSchema';
+import { createSession, deleteSessionTokenCookie, generateSessionToken, invalidateSession, SessionValidationResult, setSessionTokenCookie, validateSessionToken } from './db/sessionApi';
 
 
 const authenticate = new Hono()
@@ -15,7 +15,7 @@ const authenticate = new Hono()
         const existingUser = await db.select().from(userTable).where(eq(userTable.email, email)).get();
         if (existingUser) {
             c.status(400);
-            return c.json({ error: 'Username already taken' });
+            return c.json({ error: 'Email already registered' });
         }
 
         // Create new user
@@ -31,10 +31,7 @@ const authenticate = new Hono()
         const token = generateSessionToken();
         const session = await createSession(token, userId)
 
-        c.header(
-            'Set-Cookie',
-            `mysession=${token}; HttpOnly; SameSite=Lax; Expires=${session.expiresAt.toUTCString()}; Path=/; Secure;`
-        );
+        setSessionTokenCookie(c, token, session.expiresAt)
         return c.json({ userId });
     })
 
@@ -56,20 +53,16 @@ const authenticate = new Hono()
             return c.json({ error: 'Invalid password' });
         }
 
-        let token = getCookie(c, "mysession")
-        let session: Session
-        if (!token || token === null || token === undefined) {
-            token = generateSessionToken();
-            session = await createSession(token, userExist.id)
-        } else {
-            const { session, user }: SessionValidationResult = await validateSessionToken(token)
+        const token = getCookie(c, "mysession")
+        if (!token || token == undefined) {
+            const newToken = generateSessionToken();
+            const session = await createSession(newToken, userExist.id)
+            setSessionTokenCookie(c, newToken, session.expiresAt)
+            return c.json({ "usermail": userExist.email });
         }
-        c.header(
-            'Set-Cookie',
-            `mysession=${token}; HttpOnly; SameSite=Lax; Expires=${session!.expiresAt.toUTCString()}; Path=/; Secure;`
-        );
-
-        return c.json({ "usermail": userExist.email });
+        const { session, user }: SessionValidationResult = await validateSessionToken(token)
+        setSessionTokenCookie(c, token, session!.expiresAt)
+        return c.json({ "usermail": user!.email });
     })
 
     .post('/logout', async (c) => {
@@ -82,16 +75,12 @@ const authenticate = new Hono()
 
         await invalidateSession(sessionId);
 
-        c.header(
-            'Set-Cookie',
-            "mysession=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/; Secure;"
-        );
+        deleteSessionTokenCookie(c);
         return c.json({ message: 'Logged out successfully' });
     })
 
     .get('/me', getUser, async (c) => {
         const user = c.var.user;
-
         return c.json({ "user": user.email })
     });
 
