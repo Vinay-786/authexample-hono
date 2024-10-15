@@ -2,7 +2,7 @@ import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
-import { userTable, type User } from "./db/userSchema";
+import { userTable, type User } from "./db/schema/userSchema";
 import { validateSessionToken } from "./db/sessionApi";
 
 type Env = {

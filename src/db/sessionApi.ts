@@ -1,4 +1,4 @@
-import { type User, type Session, sessionTable, userTable } from './userSchema';
+import { type User, type Session, sessionTable, userTable } from './schema/userSchema';
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from '@oslojs/encoding';
 import { sha256 } from "@oslojs/crypto/sha2";
 import { db } from './index';

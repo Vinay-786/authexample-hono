@@ -3,7 +3,7 @@ import { db } from './db';
 import { eq } from 'drizzle-orm';
 import { getCookie } from 'hono/cookie';
 import { getUser } from './authmiddleware';
-import { userTable } from './db/userSchema';
+import { userTable } from './db/schema/userSchema';
 import { createSession, deleteSessionTokenCookie, generateSessionToken, invalidateSession, SessionValidationResult, setSessionTokenCookie, validateSessionToken } from './db/sessionApi';
 
 
