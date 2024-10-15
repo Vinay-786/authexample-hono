@@ -14,8 +14,10 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as ProtectedImport } from './routes/_protected'
+import { Route as AdminrouteImport } from './routes/_adminroute'
 import { Route as AuthenticateRouteImport } from './routes/authenticate/route'
 import { Route as ProtectedProfileImport } from './routes/_protected/profile'
+import { Route as AdminrouteMainImport } from './routes/_adminroute/main'
 
 // Create Virtual Routes
 
@@ -34,6 +36,11 @@ const ProtectedRoute = ProtectedImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AdminrouteRoute = AdminrouteImport.update({
+  id: '/_adminroute',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const AuthenticateRouteRoute = AuthenticateRouteImport.update({
   path: '/authenticate',
   getParentRoute: () => rootRoute,
@@ -47,6 +54,11 @@ const IndexLazyRoute = IndexLazyImport.update({
 const ProtectedProfileRoute = ProtectedProfileImport.update({
   path: '/profile',
   getParentRoute: () => ProtectedRoute,
+} as any)
+
+const AdminrouteMainRoute = AdminrouteMainImport.update({
+  path: '/main',
+  getParentRoute: () => AdminrouteRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -67,6 +79,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticateRouteImport
       parentRoute: typeof rootRoute
     }
+    '/_adminroute': {
+      id: '/_adminroute'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AdminrouteImport
+      parentRoute: typeof rootRoute
+    }
     '/_protected': {
       id: '/_protected'
       path: ''
@@ -81,6 +100,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutLazyImport
       parentRoute: typeof rootRoute
     }
+    '/_adminroute/main': {
+      id: '/_adminroute/main'
+      path: '/main'
+      fullPath: '/main'
+      preLoaderRoute: typeof AdminrouteMainImport
+      parentRoute: typeof AdminrouteImport
+    }
     '/_protected/profile': {
       id: '/_protected/profile'
       path: '/profile'
@@ -92,6 +118,18 @@ declare module '@tanstack/react-router' {
 }
 
 // Create and export the route tree
+
+interface AdminrouteRouteChildren {
+  AdminrouteMainRoute: typeof AdminrouteMainRoute
+}
+
+const AdminrouteRouteChildren: AdminrouteRouteChildren = {
+  AdminrouteMainRoute: AdminrouteMainRoute,
+}
+
+const AdminrouteRouteWithChildren = AdminrouteRoute._addFileChildren(
+  AdminrouteRouteChildren,
+)
 
 interface ProtectedRouteChildren {
   ProtectedProfileRoute: typeof ProtectedProfileRoute
@@ -110,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/authenticate': typeof AuthenticateRouteRoute
   '': typeof ProtectedRouteWithChildren
   '/about': typeof AboutLazyRoute
+  '/main': typeof AdminrouteMainRoute
   '/profile': typeof ProtectedProfileRoute
 }
 
@@ -118,6 +157,7 @@ export interface FileRoutesByTo {
   '/authenticate': typeof AuthenticateRouteRoute
   '': typeof ProtectedRouteWithChildren
   '/about': typeof AboutLazyRoute
+  '/main': typeof AdminrouteMainRoute
   '/profile': typeof ProtectedProfileRoute
 }
 
@@ -125,22 +165,26 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
   '/authenticate': typeof AuthenticateRouteRoute
+  '/_adminroute': typeof AdminrouteRouteWithChildren
   '/_protected': typeof ProtectedRouteWithChildren
   '/about': typeof AboutLazyRoute
+  '/_adminroute/main': typeof AdminrouteMainRoute
   '/_protected/profile': typeof ProtectedProfileRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/authenticate' | '' | '/about' | '/profile'
+  fullPaths: '/' | '/authenticate' | '' | '/about' | '/main' | '/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/authenticate' | '' | '/about' | '/profile'
+  to: '/' | '/authenticate' | '' | '/about' | '/main' | '/profile'
   id:
     | '__root__'
     | '/'
     | '/authenticate'
+    | '/_adminroute'
     | '/_protected'
     | '/about'
+    | '/_adminroute/main'
     | '/_protected/profile'
   fileRoutesById: FileRoutesById
 }
@@ -148,6 +192,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   AuthenticateRouteRoute: typeof AuthenticateRouteRoute
+  AdminrouteRoute: typeof AdminrouteRouteWithChildren
   ProtectedRoute: typeof ProtectedRouteWithChildren
   AboutLazyRoute: typeof AboutLazyRoute
 }
@@ -155,6 +200,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   AuthenticateRouteRoute: AuthenticateRouteRoute,
+  AdminrouteRoute: AdminrouteRouteWithChildren,
   ProtectedRoute: ProtectedRouteWithChildren,
   AboutLazyRoute: AboutLazyRoute,
 }
@@ -173,6 +219,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/authenticate",
+        "/_adminroute",
         "/_protected",
         "/about"
       ]
@@ -183,6 +230,12 @@ export const routeTree = rootRoute
     "/authenticate": {
       "filePath": "authenticate/route.tsx"
     },
+    "/_adminroute": {
+      "filePath": "_adminroute.tsx",
+      "children": [
+        "/_adminroute/main"
+      ]
+    },
     "/_protected": {
       "filePath": "_protected.tsx",
       "children": [
@@ -191,6 +244,10 @@ export const routeTree = rootRoute
     },
     "/about": {
       "filePath": "about.lazy.tsx"
+    },
+    "/_adminroute/main": {
+      "filePath": "_adminroute/main.tsx",
+      "parent": "/_adminroute"
     },
     "/_protected/profile": {
       "filePath": "_protected/profile.tsx",

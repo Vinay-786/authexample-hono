@@ -1,5 +1,6 @@
 import { createRootRouteWithContext, Link, Outlet } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
+import { Toaster } from 'sonner';
 
 interface MyRouterContext {
     queryClient: QueryClient
@@ -23,6 +24,9 @@ function NavBar() {
                 <Link to='/profile' className='[&.active]:font-bold'>
                     profile
                 </Link>
+                <Link to='/main' className='[&.active]:font-bold'>
+                    dashboard
+                </Link>
             </div>
             <hr />
         </>
@@ -34,6 +38,7 @@ function Root() {
         <>
             <NavBar />
             <hr />
+            <Toaster richColors />
             <div className='p-2 gap-2 max-w-2xl m-auto'>
                 <Outlet />
             </div>
